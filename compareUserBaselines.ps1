@@ -16,7 +16,7 @@ $choice = read-host "Choose something"
 
         $global:Path = ".\baseline.txt"
         Get-ADUser -Filter * | select sAMAccountName | Out-File -FilePath $Path
-        Add-Content -Path $Logs -Value "Created Baseline: " -NoNewline
+        Add-Content -Path $Logs -Value ("Created Baseline: ")-NoNewline
         Get-Date | Add-Content -Path $Logs
         }  
     if ($choice -eq 2)
@@ -39,11 +39,15 @@ $choice = read-host "Choose something"
                             Write-Host $date -NoNewline 
                             Write-Host " New User(s) Detected: " -NoNewline
                             Get-Date | Add-Content -Path $Logs -NoNewline
-                            Add-Content -Path $Logs -Value ": Possible new user: " -NoNewLine
+                            Add-Content -Path $Logs -Value (": Possible new user(s): " + "`n") -NoNewLine
                             
                             #Compare-Object $(Get-Content $Path) $(Get-Content $PathCompare) | Select-Object -ExpandProperty InputObject | Add-Content -Path $Logs
                             $temp = @(Compare-Object $(Get-Content $Path) $(Get-Content $PathCompare) | Select-Object -ExpandProperty InputObject)
-                            Add-Content -Value $temp -Path $Logs
+                            for($i = 0; $i -le ($temp.length -1); $i += 1) {
+                                $n = $i + 1
+                                Add-Content -Value ("$n. " + $temp[$i]) -Path $Logs
+                            }
+                            Add-Content -Value "`n" -Path $Logs
                             Write-Host $temp
                             
                         }
