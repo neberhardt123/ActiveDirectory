@@ -1,0 +1,21 @@
+$local = $env:ComputerName
+
+$workstations = Get-Content .\workstations.txt 
+
+$url = https://www.splunk.com/bin/splunk/DownloadActivityServlet?architecture=x86_64&platform=windows&version=7.2.10&product=universalforwarder&filename=splunkforwarder-7.2.10-a6dfcc62f450-x64-release.msi&wget=true
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+
+$forwarder = Invoke-WebRequest -Uri $url -OutFile splunk.msi
+
+foreach($workstation in $workstation)
+{
+
+Copy-Item .\$fowarder \\$workstation\c$\.
+
+$Process = [wmiclass] "\\$workstation\ROOT\CIMv2:Win32_Process"
+
+$InstallSplunk = $Process.create('powershell /c msiexec.exe /i c:\splunk.msi RECEIVING_INDEXER="[IP ADDRESS AND PORT HERE]" LAUNCHSPLUNK=1 SERVICESTARTTYPE=auto WINEVENTLOG_APP_ENABLE=1 WINEVENTLOG_SEC_ENABLE=1 WINEVENTLOG_SYS_ENABLE=1 ENABLEADMON=1 AGREETOLICENSE=Yes LOGON_USERNAME="[Domain\User]"  LOGON_PASSWORD="[AD password]" /quiet ')
+
+
+}
